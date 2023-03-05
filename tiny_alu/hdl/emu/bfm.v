@@ -5,7 +5,7 @@
 // 
 // Create Date: 2023/03/03 16:10:30
 // Design Name: 
-// Module Name: wrapper
+// Module Name: bfm
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-    module wrapper #
+    module bfm #
     (
         // Width of S_AXI data bus
 		parameter integer C_S_AXI_DATA_WIDTH	= 32,
@@ -33,109 +33,108 @@
 		// Width of S_AXIS address bus. The slave accepts the read and write addresses of width C_M_AXIS_TDATA_WIDTH.
 		parameter integer C_M_AXIS_TDATA_WIDTH	= 32,
 		// Start count is the number of clock cycles the master will wait before initiating/issuing any transaction.
-		parameter integer C_M_START_COUNT	= 32
-    )
-    (
+		parameter integer C_M_START_COUNT	= 1
+    )(
+    
+    
+        // AXI4Lite port
+        // Global Clock Signal
+		input wire  S_AXI_ACLK,
+		// Global Reset Signal. This Signal is Active LOW
+		input wire  S_AXI_ARESETN,
+		// Write address (issued by master, acceped by Slave)
+		input wire [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR,
+		// Write channel Protection type. This signal indicates the
+    		// privilege and security level of the transaction, and whether
+    		// the transaction is a data access or an instruction access.
+		input wire [2 : 0] S_AXI_AWPROT,
+		// Write address valid. This signal indicates that the master signaling
+    		// valid write address and control information.
+		input wire  S_AXI_AWVALID,
+		// Write address ready. This signal indicates that the slave is ready
+    		// to accept an address and associated control signals.
+		output wire  S_AXI_AWREADY,
+		// Write data (issued by master, acceped by Slave) 
+		input wire [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_WDATA,
+		// Write strobes. This signal indicates which byte lanes hold
+    		// valid data. There is one write strobe bit for each eight
+    		// bits of the write data bus.    
+		input wire [(C_S_AXI_DATA_WIDTH/8)-1 : 0] S_AXI_WSTRB,
+		// Write valid. This signal indicates that valid write
+    		// data and strobes are available.
+		input wire  S_AXI_WVALID,
+		// Write ready. This signal indicates that the slave
+    		// can accept the write data.
+		output wire  S_AXI_WREADY,
+		// Write response. This signal indicates the status
+    		// of the write transaction.
+		output wire [1 : 0] S_AXI_BRESP,
+		// Write response valid. This signal indicates that the channel
+    		// is signaling a valid write response.
+		output wire  S_AXI_BVALID,
+		// Response ready. This signal indicates that the master
+    		// can accept a write response.
+		input wire  S_AXI_BREADY,
+		// Read address (issued by master, acceped by Slave)
+		input wire [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_ARADDR,
+		// Protection type. This signal indicates the privilege
+    		// and security level of the transaction, and whether the
+    		// transaction is a data access or an instruction access.
+		input wire [2 : 0] S_AXI_ARPROT,
+		// Read address valid. This signal indicates that the channel
+    		// is signaling valid read address and control information.
+		input wire  S_AXI_ARVALID,
+		// Read address ready. This signal indicates that the slave is
+    		// ready to accept an address and associated control signals.
+		output wire  S_AXI_ARREADY,
+		// Read data (issued by slave)
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_RDATA,
+		// Read response. This signal indicates the status of the
+    		// read transfer.
+		output wire [1 : 0] S_AXI_RRESP,
+		// Read valid. This signal indicates that the channel is
+    		// signaling the required read data.
+		output wire  S_AXI_RVALID,
+		// Read ready. This signal indicates that the master can
+    		// accept the read data and response information.
+		input wire  S_AXI_RREADY,
+		
+		
+		// AXI4Stream slave port
+		// AXI4Stream sink: Clock
+		input wire  S_AXIS_ACLK,
+		// AXI4Stream sink: Reset
+		input wire  S_AXIS_ARESETN,
+		// Ready to accept data in
+		output wire  S_AXIS_TREADY,
+		// Data in
+		input wire [C_S_AXIS_TDATA_WIDTH-1 : 0] S_AXIS_TDATA,
+		// Byte qualifier
+		input wire [(C_S_AXIS_TDATA_WIDTH/8)-1 : 0] S_AXIS_TSTRB,
+		// Indicates boundary of last packet
+		input wire  S_AXIS_TLAST,
+		// Data is in valid
+		input wire  S_AXIS_TVALID,
+		
+		
+		// AXI4Stream master port 
+		// Global ports
+		input wire  M_AXIS_ACLK,
+		// 
+		input wire  M_AXIS_ARESETN,
+		// Master Stream Ports. TVALID indicates that the master is driving a valid transfer, A transfer takes place when both TVALID and TREADY are asserted. 
+		output wire  M_AXIS_TVALID,
+		// TDATA is the primary payload that is used to provide the data that is passing across the interface from the master.
+		output wire [C_M_AXIS_TDATA_WIDTH-1 : 0] M_AXIS_TDATA,
+		// TSTRB is the byte qualifier that indicates whether the content of the associated byte of TDATA is processed as a data byte or a position byte.
+		output wire [(C_M_AXIS_TDATA_WIDTH/8)-1 : 0] M_AXIS_TSTRB,
+		// TLAST indicates the boundary of a packet.
+		output wire  M_AXIS_TLAST,
+		// TREADY indicates that the slave can accept a transfer in the current cycle.
+		input wire  M_AXIS_TREADY
      );
      
 //-----------------------define signals and parameter here------------------------//
-
-    // TODO: add AXI4Lite Master
-    // AXI4Lite port 
-    // Global Clock Signal
-    wire  S_AXI_ACLK;
-    // Global Reset Signal. This Signal is Active LOW
-     wire  S_AXI_ARESETN;
-    // Write address (issued by master, acceped by Slave)
-     wire [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR;
-    // Write channel Protection type. This signal indicates the
-        // privilege and security level of the transaction, and whether
-        // the transaction is a data access or an instruction access.
-     wire [2 : 0] S_AXI_AWPROT;
-    // Write address valid. This signal indicates that the master signaling
-        // valid write address and control information.
-     wire  S_AXI_AWVALID;
-    // Write address ready. This signal indicates that the slave is ready
-        // to accept an address and associated control signals.
-     wire  S_AXI_AWREADY;
-    // Write data (issued by master, acceped by Slave) 
-     wire [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_WDATA;
-    // Write strobes. This signal indicates which byte lanes hold
-        // valid data. There is one write strobe bit for each eight
-        // bits of the write data bus.    
-     wire [(C_S_AXI_DATA_WIDTH/8)-1 : 0] S_AXI_WSTRB;
-    // Write valid. This signal indicates that valid write
-        // data and strobes are available.
-     wire  S_AXI_WVALID;
-    // Write ready. This signal indicates that the slave
-        // can accept the write data.
-     wire  S_AXI_WREADY;
-    // Write response. This signal indicates the status
-        // of the write transaction.
-     wire [1 : 0] S_AXI_BRESP;
-    // Write response valid. This signal indicates that the channel
-        // is signaling a valid write response.
-     wire  S_AXI_BVALID;
-    // Response ready. This signal indicates that the master
-        // can accept a write response.
-     wire  S_AXI_BREADY;
-    // Read address (issued by master, acceped by Slave)
-     wire [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_ARADDR;
-    // Protection type. This signal indicates the privilege
-        // and security level of the transaction, and whether the
-        // transaction is a data access or an instruction access.
-     wire [2 : 0] S_AXI_ARPROT;
-    // Read address valid. This signal indicates that the channel
-        // is signaling valid read address and control information.
-     wire  S_AXI_ARVALID;
-    // Read address ready. This signal indicates that the slave is
-        // ready to accept an address and associated control signals.
-     wire  S_AXI_ARREADY;
-    // Read data (issued by slave)
-     wire [C_S_AXI_DATA_WIDTH-1 : 0] S_AXI_RDATA;
-    // Read response. This signal indicates the status of the
-        // read transfer.
-     wire [1 : 0] S_AXI_RRESP;
-    // Read valid. This signal indicates that the channel is
-        // signaling the required read data.
-     wire  S_AXI_RVALID;
-    // Read ready. This signal indicates that the master can
-        // accept the read data and response information.
-     wire  S_AXI_RREADY;
-    
-    
-    // AXI4Stream slave port
-    // AXI4Stream sink: Clock
-     wire  S_AXIS_ACLK;
-    // AXI4Stream sink: Reset
-     wire  S_AXIS_ARESETN;
-    // Ready to accept data in
-     wire  S_AXIS_TREADY;
-    // Data in
-     wire [C_S_AXIS_TDATA_WIDTH-1 : 0] S_AXIS_TDATA;
-    // Byte qualifier
-     wire [(C_S_AXIS_TDATA_WIDTH/8)-1 : 0] S_AXIS_TSTRB;
-    // Indicates boundary of last packet
-     wire  S_AXIS_TLAST;
-    // Data is in valid
-     wire  S_AXIS_TVALID;
-    
-    
-    // AXI4Stream master port 
-    // Global ports
-     wire  M_AXIS_ACLK;
-    // 
-     wire  M_AXIS_ARESETN;
-    // Master Stream Ports. TVALID indicates that the master is driving a valid transfer, A transfer takes place when both TVALID and TREADY are asserted. 
-     wire  M_AXIS_TVALID;
-    // TDATA is the primary payload that is used to provide the data that is passing across the interface from the master.
-     wire [C_M_AXIS_TDATA_WIDTH-1 : 0] M_AXIS_TDATA;
-    // TSTRB is the byte qualifier that indicates whether the content of the associated byte of TDATA is processed as a data byte or a position byte.
-     wire [(C_M_AXIS_TDATA_WIDTH/8)-1 : 0] M_AXIS_TSTRB;
-    // TLAST indicates the boundary of a packet.
-     wire  M_AXIS_TLAST;
-    // TREADY indicates that the slave can accept a transfer in the current cycle.
-     wire  M_AXIS_TREADY;
 
 //------------------------------------AXI4Lite------------------------------------//
     // AXI4LITE signals
@@ -233,19 +232,20 @@
 	//The master has issued all the streaming data stored in FIFO
 	reg  	tx_done;
 //---------------------------------Custom signals---------------------------------//
-
-    parameter PACKAGE_WIDTH = 1600;
-    parameter NUM = 50; // transfer times
-    // clock and reset
-    bit clk_i;
-    bit reset_i;
-    // async with cocotb
-    reg xmit_en;
-    // data
-    reg [PACKAGE_WIDTH-1:0] data;
-    int num = 0;
-    reg [PACKAGE_WIDTH/2-1:0] rdata; // 收回的数据
-    int rnum = 0;
+    // This is an example design
+    localparam BUFFER_SIZE = 1024; // Byte
+    localparam bit_num = clogb2(BUFFER_SIZE-1); //  
+    localparam USE_TIMES = 2;   // ÿ����������Ҫ������
+    
+    reg [bit_num-1:0] read_pointer; // done
+    reg [7:0] buffer [BUFFER_SIZE-1:0]; // done
+    reg [bit_num-1:0] write_pointer;  // done
+    reg fifo_wren_delay, fifo_wren_delay2; // done
+    
+    // for module instance
+    reg [7:0] a, b, c, d;
+    wire [16:0] res;
+    wire [1:0] start, done;
 
 
 //--------------------------define bus signal logic here--------------------------//
@@ -507,8 +507,8 @@
 	begin
 	      // Address decoding for reading registers
 	      case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
-	        2'h0   : reg_data_out <= slv_reg0;
-	        2'h1   : reg_data_out <= slv_reg1;
+	        2'h0   : reg_data_out <= write_pointer;
+	        2'h1   : reg_data_out <= read_pointer;
 	        2'h2   : reg_data_out <= slv_reg2;
 	        2'h3   : reg_data_out <= slv_reg3;
 	        default : reg_data_out <= 0;
@@ -579,7 +579,7 @@
 	// 
 	// The example design sink is always ready to accept the S_AXIS_TDATA  until
 	// the FIFO is not filled with NUMBER_OF_INPUT_WORDS number of input words.
-	assign axis_tready = ((mst_exec_state_s == WRITE_FIFO));
+	assign axis_tready = ((mst_exec_state_s == WRITE_FIFO && done[0:0] && done[1:1]));
 
 	always@(posedge S_AXIS_ACLK)
 	begin
@@ -661,12 +661,12 @@
 	//tvalid generation
 	//axis_tvalid is asserted when the control state machine's state is SEND_STREAM and
 	//number of output streaming data is less than the NUMBER_OF_OUTPUT_WORDS.
-	assign axis_tvalid = ((mst_exec_state_m == SEND_STREAM) && (num < NUM) ) && xmit_en;
+	assign axis_tvalid = ((mst_exec_state_m == SEND_STREAM) && (read_pointer < BUFFER_SIZE) );
 	                                                                                               
 	// AXI tlast generation                                                                        
 	// axis_tlast is asserted number of output streaming data is NUMBER_OF_OUTPUT_WORDS-1          
 	// (0 to NUMBER_OF_OUTPUT_WORDS-1)                                                             
-	assign axis_tlast = (num == NUM - 1);                                
+	assign axis_tlast = (read_pointer == BUFFER_SIZE - 4);                                
 	                                                                                               
 	                                                                                               
 	// Delay the axis_tvalid and axis_tlast signal by one clock cycle                              
@@ -692,23 +692,22 @@
 	begin                                                                            
 	  if(!M_AXIS_ARESETN)                                                            
 	    begin                                                                        
-	      num <= 0;                                                         
+	      read_pointer <= 0;                                                         
 	      tx_done <= 1'b0;                                                           
 	    end                                                                          
 	  else                                                                           
-	    if (num <= NUM-1)                                
+	    if (read_pointer <= BUFFER_SIZE-4)                                
 	      begin                                                                      
 	        if (tx_en)                                                               
 	          // read pointer is incremented after every read from the FIFO          
 	          // when FIFO read signal is enabled.                                   
 	          begin                                                                  
-	            num = num + 1;                                    
+	            read_pointer <= read_pointer + 4;                                    
 	            tx_done <= 1'b0;                                                     
 	          end                                                                    
 	      end                                                                        
-	    else if (num == NUM)                             
-	      begin 
-            num = 0;                                                                     
+	    else if (read_pointer == BUFFER_SIZE)                             
+	      begin                                                                      
 	        // tx_done is asserted when NUMBER_OF_OUTPUT_WORDS numbers of streaming data
 	        // has been out.                                                         
 	        tx_done <= 1'b1;                                                     
@@ -722,83 +721,80 @@
 	                                                     
 	    // Streaming output data is read from FIFO       
 	    always @( posedge M_AXIS_ACLK )                  
-	    begin                                          
+	    begin                                            
 	      if(!M_AXIS_ARESETN)                            
 	        begin                                        
 	          stream_data_out <= 1;                      
 	        end                                          
 	      else if (tx_en)// && M_AXIS_TSTRB[byte_index]  
-	        begin
-				// 每次只能输出一个字                                   
-	          stream_data_out <= data[32*num +: 32];  
+	        begin                                        
+	          stream_data_out <= {
+	           buffer[read_pointer+3],
+	           buffer[read_pointer+2],
+	           buffer[read_pointer+1],
+	           buffer[read_pointer+0]
+	          };   
 	        end                                          
 	    end                                              
 //-----------------------------define user logic here-----------------------------//
-
-	// 按照S-M连接即可
-    bfm #(
-        // reserve
-    ) inst_bfm (
-        // TODO: AXI4Lite port
-        .S_AXIS_ACLK(M_AXIS_ACLK),
-        .S_AXIS_ARESETN(M_AXIS_ARESETN),
-        .S_AXIS_TREADY(M_AXIS_TREADY),
-        .S_AXIS_TDATA(M_AXIS_TDATA),
-        .S_AXIS_TSTRB(M_AXIS_TSTRB),
-        .S_AXIS_TLAST(M_AXIS_TLAST),
-        .S_AXIS_TVALID(M_AXIS_TVALID),
-
-        .M_AXIS_ACLK(S_AXIS_ACLK),
-        .M_AXIS_TVALID(S_AXIS_TVALID),
-        .M_AXIS_TDATA(S_AXIS_TDATA),
-        .M_AXIS_TSTRB(S_AXIS_TSTRB),
-        .M_AXIS_TLAST(S_AXIS_TLAST),
-        .M_AXIS_TREADY(S_AXIS_TREADY)
-    );
-
-    // clock and reset
-    always #5 clk_i = ~clk_i;
-    assign S_AXI_ACLK = clk_i;
-    assign S_AXIS_ACLK = clk_i;
-    assign M_AXIS_ACLK = clk_i;
-    assign S_AXI_ARESETN = ~reset_i;
-    assign S_AXIS_ARESETN = ~reset_i;
-    assign M_AXIS_ARESETN = ~reset_i;
-
-    always @(posedge S_AXIS_ACLK )
-    begin
-        if(fifo_wren) begin
-            rdata[rnum*32 +: 32] <= S_AXIS_TDATA;
-            rnum <= rnum + 1;
+     tinyalu inst1(
+		 .clk(S_AXIS_ACLK),
+		  .A(a),
+		  .B(b),
+		  .op(slv_reg0),
+		 .reset_n(S_AXIS_ARESETN),
+		 .start(start[0:0]),
+		 .done(done[0:0]),
+		 .result(res[7:0]));
+		
+		tinyalu inst2(
+		 .clk(S_AXIS_ACLK),
+		  .A(c),
+		  .B(d),
+		 .op(slv_reg1),
+		 .reset_n(S_AXIS_ARESETN),
+		 .start(start[1:1]),
+		 .done(done[1:1]),
+		  .result(res[15:8]));
+		  
+	assign start = {2{fifo_wren}};
+     
+     always @( posedge S_AXIS_ACLK )
+     begin
+        if(~S_AXIS_ARESETN) begin
+            fifo_wren_delay <= 0;
+            fifo_wren_delay2 <= 0;
         end
-    end
-
-    initial begin
-        $dumpfile("dump.vcd");
-        $dumpvars;
-    end
-
-    initial begin
-        clk_i = 0;
-        reset_i = 1;
-    end
-
-    int clk_num = 0;
-    always @( posedge clk_i ) begin
-        if(clk_num<=10) begin
-            clk_num = clk_num + 1;
+        else begin
+            fifo_wren_delay <= fifo_wren;
+            fifo_wren_delay2 <= fifo_wren_delay;
+        end
+     end
+     
+     always @( posedge S_AXIS_ACLK )
+     begin
+        if (fifo_wren) begin
+            {d, c, b, a} <= S_AXIS_TDATA;
+        end
+     end
+     
+     always @( posedge S_AXIS_ACLK )
+     begin
+        if(~S_AXIS_ARESETN) begin
+            write_pointer <= 0;
         end 
-        if(clk_num==10) begin
-            reset_i = 0;
+        else begin
+            if(done[0:0] && done[1:1]) begin
+                write_pointer <= write_pointer+2;
+            end 
         end
-    end
-
-    always @( posedge clk_i)
-    begin
-        if(num >= NUM) begin
-            xmit_en = xmit_en -1;
-            rnum = 0;
+     end
+     
+     always @( posedge S_AXIS_ACLK )
+     begin
+        if(done[0:0] && done[1:1]) begin
+            {buffer[write_pointer+1], buffer[write_pointer+0]} <= res;
         end
-    end
-
+     end
+     
     endmodule
