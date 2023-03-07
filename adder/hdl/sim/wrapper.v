@@ -796,7 +796,7 @@
     always @( posedge clk_i)
     begin
         if(num >= NUM) begin
-            xmit_en = xmit_en -1;
+            xmit_en = ~xmit_en;
             rnum = 0;
         end
     end
