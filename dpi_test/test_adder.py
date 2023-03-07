@@ -5,13 +5,6 @@ from pysv import sv, compile_lib, generate_sv_binding, DataType, generate_cxx_bi
 import random
 import numpy as np
 
-@sv(return_type=DataType.UByte)
-def generate_num():
-    """
-    生成一个随机数
-    """
-    return random.randint(0, 125)
-
 class RandArray:
     @sv(len=DataType.UInt)
     def __init__(self, len) -> None:
@@ -24,6 +17,12 @@ class RandArray:
     @sv(return_type=DataType.UInt)
     def len(self):
         return len(self.__array)
+    
+
+@sv(return_type=DataType.String, len=DataType.UInt)
+def get_rand_array(len):
+    """传递一个随机数组"""
+    return np.random.randint(0, 127, len, dtype="byte").tobytes()
 
 # 编译代码，默认名字libpysv.so
 # lib_path = compile_lib([generate_num], cwd="build")
@@ -32,5 +31,8 @@ class RandArray:
 # 生成DPI头文件，如果要在verilator里面使用这些导出函数才使用这个
 # generate_cxx_binding([generate_array], filename="dpi_header.cpp")
 
-lib_path = compile_lib([RandArray], cwd='build')
-generate_sv_binding([RandArray], filename="hdl/rand_array.sv", pkg_name="rand_array")
+# lib_path = compile_lib([RandArray], cwd='build')
+# generate_sv_binding([RandArray], filename="hdl/rand_array.sv", pkg_name="rand_array")
+
+lib_path = compile_lib([get_rand_array], cwd='build')
+generate_sv_binding([get_rand_array], filename="hdl/rand_array.sv", pkg_name="rand_array")

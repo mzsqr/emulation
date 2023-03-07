@@ -3,18 +3,22 @@ import rand_array::*;
 `timescale 1ns/1ps
 module our ();
 
-parameter int LENGTH = 200000;
+parameter int LENGTH = 200000000;
 
 bit clk_i, reset_i;
 int index = 0; // 当前索引
 
 always #1 clk_i = ~clk_i;
 
-// LENGTH 个随机数
-RandArray a_arr = new(LENGTH);
-RandArray b_arr = new(LENGTH);
+bit [7:0] a_arr[LENGTH], b_arr[LENGTH];
 
 initial begin
+    
+    string s = get_rand_array(LENGTH*2);
+    for(int i = 0;i<LENGTH;i=i+1)begin
+        a_arr[i] = s.getc(i*2);
+        b_arr[i] = s.getc(i*2+1);
+    end
     clk_i = 0;
     reset_i = 1;
 end
@@ -30,8 +34,8 @@ begin
         
     end
     else if(index < LENGTH) begin
-        a <= a_arr.get(index);
-        b <= b_arr.get(index);
+        a <= a_arr[index];
+        b <= b_arr[index];
         index <= index + 1;
     end else if(index == LENGTH) begin
         $finish;
