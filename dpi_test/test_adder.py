@@ -22,7 +22,7 @@ class RandArray:
 @sv(return_type=DataType.String, len=DataType.UInt)
 def get_rand_array(len):
     """传递一个随机数组"""
-    return np.random.randint(0, 127, len, dtype="byte").tobytes()
+    return np.random.randint(1, 127, len, dtype="byte").tobytes()
 
 # 编译代码，默认名字libpysv.so
 # lib_path = compile_lib([generate_num], cwd="build")
