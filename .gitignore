@@ -1,2 +1,6 @@
 build
 obj_dir
+CMakeFiles
+pybind_test
+cmake_install.cmake 
+CMakeCache.*

@@ -3,7 +3,7 @@ import rand_array::*;
 `timescale 1ns/1ps
 module our ();
 
-parameter int LENGTH = 200000000;
+parameter int LENGTH = 20000;
 
 bit clk_i, reset_i;
 int index = 0; // 当前索引
