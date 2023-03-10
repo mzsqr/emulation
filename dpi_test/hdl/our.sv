@@ -3,7 +3,7 @@ import rand_array::*;
 `timescale 1ns/1ps
 module our ();
 
-parameter int LENGTH = 20000;
+parameter int LENGTH = 2000000;
 
 bit clk_i, reset_i;
 int index = 0; // 当前索引
@@ -16,8 +16,8 @@ initial begin
     
     string s = get_rand_array(LENGTH*2);
     for(int i = 0;i<LENGTH;i=i+1)begin
-        a_arr[i] = s.getc(i*2);
-        b_arr[i] = s.getc(i*2+1);
+        a_arr[i] = s[i*2];
+        b_arr[i] = s[i*2+1];
     end
     clk_i = 0;
     reset_i = 1;
@@ -39,6 +39,13 @@ begin
         index <= index + 1;
     end else if(index == LENGTH) begin
         $finish;
+    end
+end
+
+always @(posedge clk_i) begin
+    if(index == LENGTH-1) begin
+        $display("%d %d", a, b);
+        #1 $display("%d ", res);
     end
 end
 
