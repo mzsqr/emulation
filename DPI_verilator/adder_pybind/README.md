@@ -6,6 +6,8 @@ python：3.10
 
 os：Win11-WSL-Ubuntu20.4
 
+编译：`verilator --cc --exe --sv --timing --build hdl/MyTopLevel.v hdl/bfm.v hdl/wrapper.sv sim_main.cpp ../test_adder.so`
+
 Python负责生成数据，C++接口负责传输
 
 |运算次数|总时间|传输用时（Python+C++）|模拟用时（总时间-传输用时）|
