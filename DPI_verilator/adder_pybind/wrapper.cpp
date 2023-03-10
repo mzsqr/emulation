@@ -11,11 +11,13 @@
 namespace py=pybind11;
 
 extern "C" __attribute__((visibility("default")))
- void gen_rand_arr(/* input */ uint32_t len, /* output */ svOpenArrayHandle arr)
+ void gen_rand_arr(/* output */ svOpenArrayHandle arr)
 {
         timeval t1, t2;
         gettimeofday(&t1, NULL);
         py::scoped_interpreter guard;
+
+        int len = svSize(arr, 1);
 
         auto np = py::module::import("numpy");
 

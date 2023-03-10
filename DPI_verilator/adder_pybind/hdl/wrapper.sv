@@ -1,4 +1,4 @@
-import "DPI-C" function void gen_rand_arr(int len, bit [7:0] nums []);
+import "DPI-C" function void gen_rand_arr(output bit [7:0] nums []);
 
 `timescale 1ns/1ps
 
@@ -13,10 +13,10 @@ output  reg [7:0] res_o
 parameter int LENGTH = 2000000; // byte
 
 bit clk_i, reset_i;
-bit [7:0] data[LENGTH*2]; 
+bit [7:0] data[LENGTH*2-1:0]; 
 
 initial begin
-    gen_rand_arr(LENGTH*2, data);
+    gen_rand_arr(data);
 end
 
 reg [7:0] A_s;
