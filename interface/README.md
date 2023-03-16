@@ -59,3 +59,5 @@
 ## 示例
 
 sim_main.cpp 中包含继承的DataSource类,test.sv中为使用示例
+
+编译:`verilator --cc --exe --build --sv sim_main.cpp tlm.sv test.sv tlm.cpp` (编译时间可能略长,之后先把tlm的部分编译为链接库)

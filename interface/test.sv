@@ -3,7 +3,8 @@ import tlm::*;
 module test(
     
 );
-    parameter int LENGTH = 100000000;
+    // 目前这个长度不能太大,可能是我电脑有问题
+    parameter int LENGTH = 2000000;
     bit[7:0] arr [LENGTH];
     initial begin
         chandle ds = getDataSourceByName("base");
