@@ -5,3 +5,5 @@ pybind_test
 cmake_install.cmake 
 CMakeCache.*
 __pycache__
+*.x
+*.o
